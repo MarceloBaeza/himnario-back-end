@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mbh/libraries/golang/lightms"
+	lightms "github.com/MarceloBaeza/libraries-golang-lightms"
 
 	"github.com/mbh/himnario-back-end-go/internal/infra/config/instance"
 	"github.com/mbh/himnario-back-end-go/internal/infra/config/property"

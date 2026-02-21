@@ -14,11 +14,11 @@ import (
 	"time"
 
 	ratelimit "github.com/JGLTechnologies/gin-rate-limit"
+	lightms "github.com/MarceloBaeza/libraries-golang-lightms"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 	"github.com/mbh/himnario-back-end-go/internal/infra/config/property"
-	"github.com/mbh/libraries/golang/lightms"
 )
 
 type ControllerRunnable interface {

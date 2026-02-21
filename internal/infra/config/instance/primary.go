@@ -8,9 +8,9 @@ import (
 	"github.com/mbh/himnario-back-end-go/internal/infra/secondary/hymnary"
 	"github.com/mbh/himnario-back-end-go/internal/infra/secondary/users"
 
+	lightms "github.com/MarceloBaeza/libraries-golang-lightms"
 	"github.com/mbh/himnario-back-end-go/internal/infra/primary/controllers/hymns"
 	"github.com/mbh/himnario-back-end-go/internal/infra/primary/controllers/user"
-	"github.com/mbh/libraries/golang/lightms"
 )
 
 func GetControllerHymns() lightms.PrimaryProcess {

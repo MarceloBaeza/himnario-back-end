@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS setlist_hymns;
+DROP TABLE IF EXISTS setlists;
+DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS hymn_categories;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS hymns;
+DROP TABLE IF EXISTS users;
+
+DROP FUNCTION IF EXISTS sp_create_user(TEXT, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS sp_get_user_auth_by_email(TEXT);
+DROP FUNCTION IF EXISTS sp_create_hymn_by_author_email(TEXT, JSONB, TEXT);
+DROP FUNCTION IF EXISTS sp_list_hymns();
+DROP FUNCTION IF EXISTS sp_get_hymn_by_id(BIGINT);

@@ -1,0 +1,29 @@
+server:
+  port: 8080
+  max-body-size: 1 #mb
+  max-request-time: 30 #seconds
+  limit-by-ip: 100 #requests per minute
+  run-mode: "release"
+  allow-paths: "/health,/hymn/create,/user/authentication,/user/create,/hymn/all,/hymn/{id}"
+
+database:
+  himnario:
+    url: ${DATABASE_URL}
+    max-open-connections: ${DATABASE_MAX_OPEN_CONNECTIONS}
+    min-open-connections: ${DATABASE_MIN_OPEN_CONNECTIONS}
+    max-connection-lifetime: ${DATABASE_MAX_CONNECTION_LIFETIME}
+    max-connection-idle-time: ${DATABASE_MAX_CONNECTION_IDLE_TIME}
+    health-check-period: ${DATABASE_HEALTH_CHECK_INTERVAL}
+    statements-cache-cap: ${DATABASE_STATEMENTS_CACHE_CAP}
+    migrations-directory: "file://resources/migrations"
+
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  expiration-time: ${JWT_EXPIRATION_TIME} #minutes
+
+validations:
+  headers:
+    x-client:
+      - mbh
+      - front-end-himnary

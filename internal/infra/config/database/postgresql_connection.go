@@ -22,12 +22,12 @@ type DBPool struct {
 
 func NewPool(ctx context.Context, properties property.DatabaseSettings) *DBPool {
 	once.Do(func() {
-		log.Printf("connect to %s", properties.Url)
-		if properties.Url == "" {
-			log.Fatalf("DatabaseURL is required")
+		log.Printf("connect to %s", properties.SafeAddr())
+		if properties.Host == "" {
+			log.Fatalf("database host is required")
 		}
 
-		poolCfg, err := pgxpool.ParseConfig(properties.Url)
+		poolCfg, err := pgxpool.ParseConfig(properties.AppDSN())
 		if err != nil {
 			log.Fatalf("parse pool config: %v", err)
 		}

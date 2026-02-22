@@ -5,6 +5,7 @@ import (
 	"github.com/mbh/himnario-back-end-go/internal/infra/config/controller"
 	"github.com/mbh/himnario-back-end-go/internal/infra/config/database"
 	"github.com/mbh/himnario-back-end-go/internal/infra/config/property"
+	"github.com/mbh/himnario-back-end-go/internal/infra/config/seeder"
 	"github.com/mbh/himnario-back-end-go/internal/infra/secondary/hymnary"
 	"github.com/mbh/himnario-back-end-go/internal/infra/secondary/users"
 
@@ -16,11 +17,14 @@ import (
 func GetControllerHymns() lightms.PrimaryProcess {
 	database.RunMigrations(property.GetDatabaseProperty().DatabaseSettings.Himnario)
 
+	usersClient := users.NewClient()
+	seeder.SeedAdminUser(usersClient.DBPool, property.GetSeedProperty().Seed)
+
 	return controller.GetControllerInstance(
 		[]controller.ControllerRunnable{
 			user.NewUserController(
 				service.NewUserService(
-					users.NewClient(),
+					usersClient,
 				),
 			),
 			hymns.NewHymnController(

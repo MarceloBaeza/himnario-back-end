@@ -23,4 +23,5 @@ func registerProperties() {
 	lightms.AddProperty(property.GetDatabaseProperty())
 	lightms.AddProperty(property.GetJwtProperty())
 	lightms.AddProperty(property.GetValidationsProperty())
+	lightms.AddProperty(property.GetSeedProperty())
 }

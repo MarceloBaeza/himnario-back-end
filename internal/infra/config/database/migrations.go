@@ -13,8 +13,8 @@ import (
 )
 
 func RunMigrations(props property.DatabaseSettings) {
-	log.Printf("connect to %s\n", props.Url)
-	sqlDB, err := sql.Open("postgres", props.Url)
+	log.Printf("migrations connecting to %s\n", props.SafeAddr())
+	sqlDB, err := sql.Open("postgres", props.MigrationDSN())
 	if err != nil {
 		log.Fatalf("open sql db: %v", err)
 	}
@@ -37,5 +37,5 @@ func RunMigrations(props property.DatabaseSettings) {
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("migrate up: %v", err)
 	}
-	log.Printf("migrations ok %s, database %s\n", props.MigrationsDirectory, props.Url)
+	log.Printf("migrations ok %s, database %s\n", props.MigrationsDirectory, props.SafeAddr())
 }

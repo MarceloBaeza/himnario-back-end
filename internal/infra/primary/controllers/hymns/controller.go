@@ -29,9 +29,9 @@ func NewHymnController(hymnCase core.HymnUseCaseHandler) *HymnController {
 func (rc *HymnController) RunController(r *gin.Engine) {
 	user := r.Group("/hymn/")
 	user.Use(rc.validationsHeaders())
-	user.POST("create/", rc.Create)
-	user.GET("all/", rc.GetAll)
-	user.GET(":id/", rc.GetHymnByID)
+	user.POST("create", rc.Create)
+	user.GET("all", rc.GetAll)
+	user.GET(":id", rc.GetHymnByID)
 }
 
 func (rc *HymnController) Create(ctx *gin.Context) {

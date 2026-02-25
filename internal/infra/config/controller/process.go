@@ -15,6 +15,7 @@ import (
 
 	ratelimit "github.com/JGLTechnologies/gin-rate-limit"
 	lightms "github.com/MarceloBaeza/libraries-golang-lightms"
+	"github.com/gin-contrib/cors"
 	limits "github.com/gin-contrib/size"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
@@ -59,13 +60,11 @@ func (c *GinController) Start() {
 func (c *GinController) buildServer(srvConf *property.ServerProperty) (*gin.Engine, *http.Server) {
 	gin.SetMode(srvConf.RunMode)
 	r := gin.New()
-
+	middlewares(r, srvConf.MaxRequestTime, srvConf.MaxBodySize, srvConf.LimitByIp,
+		AllowedPaths(srvConf.AllowPaths))
 	for _, o := range c.controllers {
 		o.RunController(r)
 	}
-
-	middlewares(r, srvConf.MaxRequestTime, srvConf.MaxBodySize, srvConf.LimitByIp,
-		AllowedPaths(srvConf.AllowPaths))
 
 	port := fmt.Sprintf(":%v", srvConf.Port)
 	srv := &http.Server{
@@ -105,13 +104,28 @@ func matchPath(pattern, path string) bool {
 }
 
 func middlewares(srv *gin.Engine, timeOut, maxSizeRequest uint, limitByIp uint, allowedPaths map[string]bool) {
+	srv.Use(corsMiddleware())
 	srv.Use(configurationLogging())
 	srv.Use(timeoutMiddleware(timeOut)) // time out request
 	srv.Use(AllowedPathsMiddleware(allowedPaths))
 	srv.Use(limits.RequestSizeLimiter(int64(maxSizeRequest * 1024 * 1024))) // bytes max size request
 	srv.Use(RateLimit(limitByIp))                                           // max requests per seconds
 	srv.Use(gin.Recovery())
-	srv.Use(HeadersValidations())
+	// srv.Use(HeadersValidations())
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"POST", "GET", "PUT", "OPTIONS"}
+	config.AllowHeaders = []string{
+		"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma",
+		"x-client", "country", "event-id",
+	}
+	config.ExposeHeaders = []string{"Content-Length"}
+	config.MaxAge = 12 * time.Hour
+
+	return cors.New(config)
 }
 
 func AllowedPathsMiddleware(allowedPaths map[string]bool) gin.HandlerFunc {

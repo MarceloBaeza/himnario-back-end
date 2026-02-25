@@ -3,7 +3,7 @@ server:
   max-body-size: 1 #mb
   max-request-time: 30 #seconds
   limit-by-ip: 100 #requests per minute
-  run-mode: "release"
+  run-mode: "debug"
   allow-paths: "/health,/hymn/create,/user/authentication,/user/create,/hymn/all,/hymn/{id}"
 
 database:

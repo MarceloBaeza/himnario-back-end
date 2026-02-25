@@ -24,8 +24,8 @@ func NewUserController(useCase core.UserUseCaseHandler) *UserController {
 func (rc *UserController) RunController(r *gin.Engine) {
 	user := r.Group("/user/")
 	user.Use(rc.validationsHeaders())
-	user.POST("authentication/", rc.Authentication)
-	user.POST("create/", rc.Create)
+	user.POST("authentication", rc.Authentication)
+	user.POST("create", rc.Create)
 }
 
 func (rc *UserController) Create(ctx *gin.Context) {

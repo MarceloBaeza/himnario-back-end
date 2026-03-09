@@ -54,6 +54,23 @@ func (c *Hymns) AddHymn(hymn *domain.Hymn) error {
 	return nil
 }
 
+func (c *Hymns) EditHymn(hymn *domain.Hymn) error {
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	contentJson, err := json.Marshal(hymn.Content)
+	if err != nil {
+		return fmt.Errorf("error marshalling hymn content: %w", err)
+	}
+	const q = `SELECT sp_update_hymn($1, $2, $3::jsonb);`
+	_, err = c.Pool.Exec(ctx, q, hymn.Id, hymn.Title, string(contentJson))
+	if err != nil {
+		return fmt.Errorf("error update hymn: %w", err)
+	}
+	log.Printf("Hymn updated successfully: %s\n", hymn.Title)
+	return nil
+}
+
 func (c *Hymns) GetHymnByID(id int) (*domain.Hymn, error) {
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)

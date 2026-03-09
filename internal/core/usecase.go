@@ -10,4 +10,5 @@ type HymnUseCaseHandler interface {
 	Create(newHymn *domain.Hymn) error
 	GetAllHymns() ([]*domain.Hymn, error)
 	GetHymnByID(id int) (*domain.Hymn, error)
+	EditHymnByID(hymn *domain.Hymn) (*domain.Hymn, error)
 }

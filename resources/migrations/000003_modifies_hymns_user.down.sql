@@ -1,0 +1,10 @@
+DROP FUNCTION IF EXISTS sp_update_hymn(BIGINT,text,jsonb);
+DROP FUNCTION IF EXISTS sp_update_user_password(text,text);
+
+REVOKE SELECT, INSERT, UPDATE, DELETE ON TABLE hymns FROM hymns_app;
+
+REVOKE SELECT, UPDATE ON TABLE users FROM hymns_app;
+
+REVOKE USAGE ON SCHEMA public FROM hymns_app;
+
+REVOKE USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public FROM hymns_app;

@@ -279,6 +279,112 @@ Retorna todos los himnos ordenados por título. No incluye el contenido.
 
 ---
 
+### Editar himno por ID
+
+```
+PUT /hymn/{id}
+```
+
+> **Requiere JWT.** Solo usuarios con rol `admin` o `editor`.
+> El email y nombre del body deben coincidir exactamente con los del token.
+
+**Headers adicionales**
+```
+Authorization: Bearer <token>
+```
+
+**Path params**
+
+| Parámetro | Tipo | Descripción |
+|---|---|---|
+| `id` | integer | ID del himno a editar |
+
+**Body**
+```json
+{
+  "title": "Nuevo título del himno",
+  "content": {
+    "verses": [
+      { "number": 1, "lines": ["Línea uno", "Línea dos"] }
+    ],
+    "chorus": "Estribillo actualizado"
+  },
+  "user": {
+    "email": "editor@ejemplo.com",
+    "name": "Nombre Editor"
+  }
+}
+```
+
+| Campo | Tipo | Requerido | Notas |
+|---|---|---|---|
+| `title` | string | sí | nuevo título (case-insensitive único) |
+| `content` | objeto JSON | sí | estructura libre (se almacena como JSONB) |
+| `user.email` | string | sí | debe coincidir con el token |
+| `user.name` | string | sí | debe coincidir con el token |
+
+**Respuesta `200`**
+```json
+{
+  "responseOk": {
+    "statusCode": 200,
+    "message": "edit hymn successfully",
+    "data": {
+      "id": 1,
+      "title": "Nuevo título del himno",
+      "content": {
+        "verses": [
+          { "number": 1, "lines": ["Línea uno", "Línea dos"] }
+        ],
+        "chorus": "Estribillo actualizado"
+      },
+      "created_at": "2025-01-15T10:30:00Z"
+    }
+  }
+}
+```
+
+**Respuesta `401` — token inválido, expirado o datos de usuario no coinciden**
+```json
+{
+  "responseError": {
+    "statusCode": 401,
+    "error": "Unauthorized",
+    "data": {
+      "error": "invalid or expired token"
+    }
+  }
+}
+```
+
+**Respuesta `404` — himno no existe**
+```json
+{
+  "responseError": {
+    "statusCode": 404,
+    "error": "Hymn not found",
+    "data": {
+      "error": "hymn with given ID does not exist"
+    }
+  }
+}
+```
+
+**Respuesta `400` — ID no es un número entero o body inválido**
+```json
+{
+  "responseError": {
+    "statusCode": 400,
+    "error": "Invalid hymn ID",
+    "data": {
+      "error": "strconv.Atoi: parsing \"abc\": invalid syntax"
+    }
+  }
+}
+```
+
+---
+
 ### Obtener himno por ID
 
 ```
@@ -408,4 +514,15 @@ curl -s "$BASE/hymn/all" "${HEADERS[@]}"
 
 # 5. Obtener himno por ID
 curl -s "$BASE/hymn/1" "${HEADERS[@]}"
+
+# 6. Editar himno por ID
+curl -s -X PUT "$BASE/hymn/1" \
+  "${HEADERS[@]}" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "title": "Mi Primer Himno Actualizado",
+    "content": {"verses": [{"number": 1, "lines": ["Línea actualizada"]}]},
+    "user": {"email": "editor@ejemplo.com", "name": "Editor"}
+  }'
 ```

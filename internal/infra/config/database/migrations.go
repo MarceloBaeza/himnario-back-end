@@ -35,7 +35,10 @@ func RunMigrations(props property.DatabaseSettings) {
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("migrate up: %v", err)
+		log.Printf("migrate up error %v", err)
+		err = m.Down()
+		log.Printf("migrate  down error %v", err)
+		log.Fatalf("shutdown")
 	}
 	log.Printf("migrations ok %s, database %s\n", props.MigrationsDirectory, props.SafeAddr())
 }

@@ -36,3 +36,11 @@ func (hs *HymnsService) GetAllHymns() ([]*domain.Hymn, error) {
 func (hs *HymnsService) GetHymnByID(id int) (*domain.Hymn, error) {
 	return hs.hymnsPersistence.GetHymnByID(id)
 }
+
+func (hs *HymnsService) EditHymnByID(hymn *domain.Hymn) (*domain.Hymn, error) {
+	err := hs.hymnsPersistence.EditHymn(hymn)
+	if err != nil {
+		return nil, err
+	}
+	return hymn, nil
+}

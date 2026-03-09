@@ -32,6 +32,7 @@ func (rc *HymnController) RunController(r *gin.Engine) {
 	user.POST("create", rc.Create)
 	user.GET("all", rc.GetAll)
 	user.GET(":id", rc.GetHymnByID)
+	user.PUT(":id", rc.EditHymnByID)
 }
 
 func (rc *HymnController) Create(ctx *gin.Context) {
@@ -110,6 +111,85 @@ func (rc *HymnController) GetAll(ctx *gin.Context) {
 		http.StatusOK))
 }
 
+func (rc *HymnController) EditHymnByID(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, rc.GenerateResponseError(http.StatusBadRequest,
+			"Invalid hymn ID", &validation.Result{
+				Success: false,
+				Errors:  map[string]string{"error": err.Error()},
+			}))
+		return
+	}
+
+	var dto *request.EditHymn
+	if err = ctx.ShouldBindJSON(&dto); err != nil {
+		ctx.JSON(http.StatusBadRequest, rc.GenerateResponseError(
+			http.StatusBadRequest,
+			"Invalid request body",
+			&validation.Result{
+				Success: false,
+				Errors:  map[string]string{"error": err.Error()},
+			}))
+		return
+	}
+
+	validationResult := validations.NewEditBody().Validate(dto)
+	if !validationResult.Success {
+		ctx.JSON(http.StatusBadRequest, rc.GenerateResponseError(http.StatusBadRequest, "Invalid request body", validationResult))
+		return
+	}
+
+	jwtToken, err := rc.getJwtToken(ctx.Request.Header)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, rc.GenerateResponseError(http.StatusUnauthorized,
+			"Unauthorized", &validation.Result{
+				Success: false,
+				Errors:  map[string]string{"error": "authorization header missing or malformed"},
+			}))
+		return
+	}
+	userFromToken, err := security.ValidateToken(jwtToken)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, rc.GenerateResponseError(http.StatusUnauthorized,
+			"Unauthorized", &validation.Result{
+				Success: false,
+				Errors:  map[string]string{"error": "invalid or expired token"},
+			}))
+		return
+	}
+	err = rc.ValidateUser(userFromToken, dto.User, "edit")
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, rc.GenerateResponseError(http.StatusUnauthorized,
+			"Unauthorized", &validation.Result{
+				Success: false,
+				Errors:  map[string]string{"error": "unauthorized"},
+			}))
+		return
+	}
+	editHymn := MapperEditHymn(dto, id)
+	hymn, err := rc.hymnCase.EditHymnByID(editHymn)
+	if err != nil {
+		log.Printf("hymn edit by id error: %v", err)
+		ctx.JSON(http.StatusInternalServerError, rc.GenerateResponseError(http.StatusInternalServerError,
+			"Failed to edit hymn", &validation.Result{
+				Success: false,
+				Errors:  map[string]string{"error": "internal server error"},
+			}))
+		return
+	}
+	if hymn == nil {
+		ctx.JSON(http.StatusNotFound, rc.GenerateResponseError(http.StatusNotFound,
+			"Hymn not found", &validation.Result{
+				Success: false,
+				Errors:  map[string]string{"error": "hymn with given ID does not exist"},
+			}))
+		return
+	}
+	ctx.JSON(http.StatusOK, rc.GenerateReponseOk(hymn, "edit hymn successfully", http.StatusOK))
+}
+
 func (rc *HymnController) GetHymnByID(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -163,7 +243,7 @@ func (rc *HymnController) ValidateUser(userFromToken *domain.User, userFromBody 
 		return errors.New("user name does not match token name")
 	}
 	switch action {
-	case "creation":
+	case "creation", "edit":
 		return domain.ValidateRolCreateEditHymns(userFromToken.Role)
 	default:
 		return errors.New("invalid action")

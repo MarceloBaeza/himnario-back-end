@@ -12,3 +12,11 @@ func MapperNewHymn(rq *request.NewHymn) *domain.Hymn {
 		EmailUser: rq.User.Email,
 	}
 }
+
+func MapperEditHymn(rq *request.EditHymn, id int) *domain.Hymn {
+	return &domain.Hymn{
+		Title:   rq.Title,
+		Content: rq.Content,
+		Id:      id,
+	}
+}

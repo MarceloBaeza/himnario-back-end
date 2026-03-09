@@ -6,4 +6,5 @@ type PersistenceHymns interface {
 	AddHymn(hymn *domain.Hymn) error
 	GetHymnByID(id int) (*domain.Hymn, error)
 	GetAllHymns() ([]*domain.Hymn, error)
+	EditHymn(hymn *domain.Hymn) error
 }
